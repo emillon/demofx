@@ -1,8 +1,10 @@
 start = ->
   canvas = document.createElement 'canvas'
-  canvas.height = 1024
-  canvas.width = 1024
+  xsize = 640
+  ysize = 480
+  canvas.width = xsize
+  canvas.height = ysize
   div = document.getElementById 'app'
   div.appendChild canvas
   ctx = canvas.getContext '2d'
-  fire = new Fire ctx
+  fire = new Fire ctx, xsize, ysize
