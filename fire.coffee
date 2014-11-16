@@ -10,7 +10,7 @@ class Fire
     @prepareCoolingBuffer()
     for y in [0 .. @ysize - 1]
       for x in [0 .. @xsize - 1]
-        @putPixel @buffer1, x, y, 0x80
+        @buffer1[x][y] = 0x80
 
   makeBuffer: ->
     buf = new Array @xsize
@@ -29,7 +29,7 @@ class Fire
             for dy in [-1 .. 1]
               v += buf[x + dx][y + dy]
           v /= 9
-          @putPixel newBuf, x, y, v
+          newBuf[x][y] = v
       return newBuf
 
     randomIntFromInterval = (min, max) ->
@@ -39,7 +39,7 @@ class Fire
       x = randomIntFromInterval 1, (@xsize - 2)
       y = randomIntFromInterval 1, (@ysize - 2)
       v = randomIntFromInterval 0, 0xff
-      @putPixel @cooling, x, y, v
+      @cooling[x][y] = v
     for i in [1..50]
       @cooling = smooth @cooling
 
@@ -58,14 +58,11 @@ class Fire
         p = p - c
         if p < 0
           p = 0
-        @putPixel @buffer2, x, (y-1), p
+        @buffer2[x][y-1] = p
 
     @putBuffer @buffer2
     @buffer2 = @buffer1
     @coolingOffset++
-
-  putPixel: (buffer, x, y, v) ->
-    buffer[x][y] = v
 
   putBuffer: (buffer) ->
     for y in [0 .. @ysize - 1]
