@@ -8,9 +8,6 @@ class Fire
     window.requestAnimationFrame @drawFrame
     @coolingOffset = 0
     @prepareCoolingBuffer()
-    for y in [0 .. @ysize - 1]
-      for x in [0 .. @xsize - 1]
-        @buffer1[x][y] = 0x80
 
   makeBuffer: ->
     buf = new Array @xsize
@@ -46,6 +43,10 @@ class Fire
   drawFrame: =>
     window.requestAnimationFrame @drawFrame
 
+    for y in [@ysize - 3 .. @ysize - 1]
+      for x in [0 .. @xsize - 1]
+        @buffer1[x][y] = 0x80
+
     for y in [1 .. @ysize - 2]
       for x in [1 .. @xsize - 2]
         n1 = @buffer1[x+1][y]
@@ -61,7 +62,7 @@ class Fire
         @buffer2[x][y-1] = p
 
     @putBuffer @buffer2
-    @buffer2 = @buffer1
+    @buffer1 = @buffer2
     @coolingOffset++
 
   putBuffer: (buffer) ->
