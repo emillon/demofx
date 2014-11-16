@@ -27,7 +27,7 @@ class Fire
           v = 0
           for dx in [-1 .. 1]
             for dy in [-1 .. 1]
-              v += @getPixel buf, (x + dx), (y + dy)
+              v += buf[x + dx][y + dy]
           v /= 9
           @putPixel newBuf, x, y, v
       return newBuf
@@ -48,10 +48,10 @@ class Fire
 
     for y in [1 .. @ysize - 2]
       for x in [1 .. @xsize - 2]
-        n1 = @getPixel @buffer1, (x+1), y
-        n2 = @getPixel @buffer1, (x-1), y
-        n3 = @getPixel @buffer1, x, (y+1)
-        n4 = @getPixel @buffer1, x, (y-1)
+        n1 = @buffer1[x+1][y]
+        n2 = @buffer1[x-1][y]
+        n3 = @buffer1[x][y+1]
+        n4 = @buffer1[x][y-1]
 
         c = @cooling[x][(y+@coolingOffset) % @ysize]
         p = (n1+n2+n3+n4) / 4
@@ -63,9 +63,6 @@ class Fire
     @putBuffer @buffer2
     @buffer2 = @buffer1
     @coolingOffset++
-
-  getPixel: (buffer, x, y) ->
-    buffer[x][y]
 
   putPixel: (buffer, x, y, v) ->
     buffer[x][y] = v
