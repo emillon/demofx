@@ -59,17 +59,11 @@ class Fire
         p = p - c
         if p < 0
           p = 0
-        @buffer2[x][y-1] = p
 
-    @putBuffer @buffer2
-    @buffer1 = @buffer2
-    @coolingOffset++
-
-  putBuffer: (buffer) ->
-    for y in [0 .. @ysize - 1]
-      for x in [0 .. @xsize - 1]
-        index = (y * @xsize + x) * 4
-        value = buffer[x][y]
+        ydest = y - 1
+        @buffer2[x][ydest] = p
+        index = (ydest * @xsize + x) * 4
+        value = p
         rvalue = value
         gvalue = value
         bvalue = value
@@ -78,4 +72,7 @@ class Fire
         @data[index + 1] = gvalue
         @data[index + 2] = bvalue
         @data[index + 3] = avalue
+
     @ctx.putImageData @imageData, 0, 0
+    @buffer1 = @buffer2
+    @coolingOffset++
