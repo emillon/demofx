@@ -1,0 +1,5 @@
+install:
+    - npm install coffee-script
+script:
+    - make
+    - coffeelint *.coffee *.litcoffee
