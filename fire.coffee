@@ -8,6 +8,11 @@ class Fire
     window.requestAnimationFrame @drawFrame
     @coolingOffset = 0
     @prepareCoolingBuffer()
+    @lastCalledTime = Date.now()
+    @fps = 0
+    @fpsText = ''
+    @drawFpsReady = false
+    window.setInterval (=> @drawFpsReady = true), 1000
 
   makeBuffer: ->
     buf = new Array @xsize
@@ -76,3 +81,13 @@ class Fire
     @ctx.putImageData @imageData, 0, 0
     @buffer1 = @buffer2
     @coolingOffset++
+
+    now = Date.now()
+    delta = (now - @lastCalledTime)/1000
+    @lastCalledTime = now
+    @fps = (1/delta).toFixed(1)
+    if @drawFpsReady
+      @fpsText = @fps
+      @drawFpsReady = false
+    @ctx.fillStyle = "red"
+    @ctx.fillText @fpsText, 10, 10
