@@ -12,11 +12,9 @@ class Fire
     window.requestAnimationFrame @drawFrame
     @coolingOffset = 0
     @prepareCoolingBuffer()
-    @lastCalledTime = Date.now()
-    @fps = 0
-    @fpsText = ''
-    @drawFpsReady = false
-    window.setInterval (=> @drawFpsReady = true), 1000
+
+    @fpsCounter = new FpsCounter 1000
+    @fpsCounter.start()
 
   makeBuffer: ->
     buf = new Array @xsize
@@ -83,12 +81,6 @@ class Fire
     @buffer1 = @buffer2
     @coolingOffset++
 
-    now = Date.now()
-    delta = (now - @lastCalledTime)/1000
-    @lastCalledTime = now
-    @fps = (1/delta).toFixed(1)
-    if @drawFpsReady
-      @fpsText = @fps
-      @drawFpsReady = false
+    fpsText = @fpsCounter.tick()
     @ctx.fillStyle = "red"
-    @ctx.fillText @fpsText, 10, 10
+    @ctx.fillText fpsText, 10, 10
