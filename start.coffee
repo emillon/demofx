@@ -6,9 +6,11 @@ start = ->
   canvas.height = ysize
   div = document.getElementById 'app'
   ctx = canvas.getContext '2d'
+  div.appendChild canvas
 
   addLink = (name) ->
     link = document.createElement 'a'
+    link.className = 'fxsel'
     link.href = '#' + name
     link.textContent = name
     div.appendChild link
@@ -26,5 +28,3 @@ start = ->
 
   window.onhashchange = reloadHash
   reloadHash()
-
-  div.appendChild canvas
