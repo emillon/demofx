@@ -47,9 +47,15 @@ Prepare a FPS counter that will update its text every second.
         @fpsCounter = new FpsCounter 1000
         @fpsCounter.start()
 
-Finally, register the `@drawFrame` callback.
+Finally, register the `@drawFrame` callback. We keep track of the request ID so
+that it is possible to cancel it.
 
-        window.requestAnimationFrame @drawFrame
+        @request = window.requestAnimationFrame @drawFrame
+
+      stop: ->
+        @fpsCounter.stop()
+        window.cancelAnimationFrame @request
+        @request = undefined
 
 For general buffers, I use 2D arrays. I expected 1D arrays to be faster but it
 was not so obvious so I sticked to 2D ones.
@@ -100,7 +106,7 @@ The result should look like stains.
 The `@drawFrame` function is the heart of the fire effect.
 
       drawFrame: =>
-        window.requestAnimationFrame @drawFrame
+        @request = window.requestAnimationFrame @drawFrame
 
 First, we fill the bottom of the screen with hot pixels. This corresponds to the
 heat source that produces flames.

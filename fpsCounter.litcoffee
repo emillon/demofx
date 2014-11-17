@@ -16,7 +16,11 @@ These variables work in the following way: every `updateMillis`,
 `@fpsText`.
 
       start: ->
-        window.setInterval (=> @drawFpsReady = true), @updateMillis
+        @interval = window.setInterval (=> @drawFpsReady = true), @updateMillis
+
+      stop: ->
+        window.clearInterval @interval
+        @interval = undefined
 
 The `tick` method is called at every frame. It returns a text to be displayed at
 every frame. It will changes only every `@updateMillis`.

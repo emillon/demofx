@@ -8,7 +8,7 @@ First, generate a few stars.
         nstars = 200
         @stars = (@randomStar() for _ in [1..nstars])
 
-        window.requestAnimationFrame @drawFrame
+        @request = window.requestAnimationFrame @drawFrame
 
 The stars here are uniformly distributed. This is nice for initial stars but a
 bit awkward for later stars since they seem to pop from anywhere.
@@ -18,11 +18,17 @@ bit awkward for later stars since they seem to pop from anywhere.
         y = Math.floor (Math.random() * @ysize)
         [x, y]
 
+To stop it, well, just cancel the next frame.
+
+      stop: ->
+        window.cancelAnimationFrame @request
+        @request = undefined
+
 At every frame, we just draw the stars (1 white pixel each, the rest is black)
 and call `@scatterStars`.
 
       drawFrame: =>
-        window.requestAnimationFrame @drawFrame
+        @request = window.requestAnimationFrame @drawFrame
 
         @ctx.fillStyle = "black"
         @ctx.fillRect 0, 0, @xsize, @ysize

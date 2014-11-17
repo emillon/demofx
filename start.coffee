@@ -1,30 +1,6 @@
 start = ->
-  canvas = document.createElement 'canvas'
-  xsize = 640
-  ysize = 480
-  canvas.width = xsize
-  canvas.height = ysize
   div = document.getElementById 'app'
-  ctx = canvas.getContext '2d'
-  div.appendChild canvas
-
-  addLink = (name) ->
-    link = document.createElement 'a'
-    link.className = 'fxsel'
-    link.href = '#' + name
-    link.textContent = name
-    div.appendChild link
-
-  addLink 'fire'
-  addLink 'starfield'
-
-  reloadHash = ->
-    hash = window.location.hash or '#fire'
-    switch hash
-      when '#fire'
-        fire = new Fire ctx, xsize, ysize
-      when '#starfield'
-        starfield = new Starfield ctx, xsize, ysize
-
-  window.onhashchange = reloadHash
-  reloadHash()
+  app = new App div, 640, 480
+  app.addEffect 'fire'
+  app.addEffect 'starfield'
+  app.start()

@@ -1,9 +1,9 @@
 SRC=start.coffee
-SRC_LIT=fpsCounter.litcoffee fire.litcoffee starfield.litcoffee
+SRC_LIT=app.litcoffee fpsCounter.litcoffee fire.litcoffee starfield.litcoffee
 
 .PHONY: watch clean
 
-app.js: $(SRC:coffee=js) $(SRC_LIT:litcoffee=js)
+gen.js: $(SRC:coffee=js) $(SRC_LIT:litcoffee=js)
 	cat $+ > $@
 
 %.js: %.coffee
