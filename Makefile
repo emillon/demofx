@@ -1,5 +1,5 @@
 SRC=start.coffee
-SRC_LIT=app.litcoffee fpsCounter.litcoffee fire.litcoffee starfield.litcoffee
+SRC_LIT=app.litcoffee fpsCounter.litcoffee fire.litcoffee starfield.litcoffee cube.litcoffee
 
 .PHONY: watch clean
 

@@ -7,4 +7,6 @@ start = ->
     new Fire ctx, xsize, ysize
   app.addEffect 'starfield', (ctx) ->
     new Starfield ctx, xsize, ysize
+  app.addEffect 'cube', (ctx) ->
+    new Cube ctx, xsize, ysize
   app.start()
