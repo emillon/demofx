@@ -5,6 +5,26 @@ start = ->
   canvas.width = xsize
   canvas.height = ysize
   div = document.getElementById 'app'
-  div.appendChild canvas
   ctx = canvas.getContext '2d'
-  fire = new Fire ctx, xsize, ysize
+
+  addLink = (name) ->
+    link = document.createElement 'a'
+    link.href = '#' + name
+    link.textContent = name
+    div.appendChild link
+
+  addLink 'fire'
+  addLink 'starfield'
+
+  reloadHash = ->
+    hash = window.location.hash or '#fire'
+    switch hash
+      when '#fire'
+        fire = new Fire ctx, xsize, ysize
+      when '#starfield'
+        starfield = new Starfield ctx, xsize, ysize
+
+  window.onhashchange = reloadHash
+  reloadHash()
+
+  div.appendChild canvas
