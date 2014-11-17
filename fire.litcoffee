@@ -51,6 +51,9 @@ Finally, register the `@drawFrame` callback.
 
         window.requestAnimationFrame @drawFrame
 
+For general buffers, I use 2D arrays. I expected 1D arrays to be faster but it
+was not so obvious so I sticked to 2D ones.
+
       makeBuffer: ->
         buf = new Array @xsize
         for x in [0 .. @xsize - 1]
@@ -58,7 +61,25 @@ Finally, register the `@drawFrame` callback.
           for y in [0 .. @ysize - 1]
             buf[x][y] = 0
 
+The cooling buffer is crucial because it defines how the fire will look. This is
+a chaotic algorithm, but still deterministic after all. For example, if the
+cooling buffer is uniform, the fire effect will look like a gradient.
+
       prepareCoolingBuffer: ->
+
+We start by we shooting some random seeds on the buffer.
+
+        randomIntFromInterval = (min, max) ->
+            Math.floor (Math.random()*(max-min+1)+min)
+
+        for i in [1..1000]
+          x = randomIntFromInterval 1, (@xsize - 2)
+          y = randomIntFromInterval 1, (@ysize - 2)
+          v = randomIntFromInterval 0, 0xff
+          @cooling[x][y] = v
+
+Then we apply several smoothing passes. This is just a low-pass filter.
+
         smooth = (buf) =>
           newBuf = @makeBuffer()
           for x in [1 .. @xsize - 2]
@@ -71,22 +92,26 @@ Finally, register the `@drawFrame` callback.
               newBuf[x][y] = v
           return newBuf
 
-        randomIntFromInterval = (min, max) ->
-            Math.floor (Math.random()*(max-min+1)+min)
+The result should look like stains.
 
-        for i in [1..1000]
-          x = randomIntFromInterval 1, (@xsize - 2)
-          y = randomIntFromInterval 1, (@ysize - 2)
-          v = randomIntFromInterval 0, 0xff
-          @cooling[x][y] = v
         for i in [1..50]
           @cooling = smooth @cooling
 
+The `@drawFrame` function is the heart of the fire effect.
+
       drawFrame: =>
         window.requestAnimationFrame @drawFrame
+
+First, we fill the bottom of the screen with hot pixels. This corresponds to the
+heat source that produces flames.
+
         for y in [@ysize - 3 .. @ysize - 1]
           for x in [0 .. @xsize - 1]
             @buffer1[x][y] = 0x80
+
+Then, we iterate on each pixel (minus the borders) where we compute the new
+value, `p`. It is the mean of its neighbour, less the cooling amount `c` that
+comes from the cooling buffer.
 
         for y in [1 .. @ysize - 2]
           for x in [1 .. @xsize - 2]
@@ -101,6 +126,9 @@ Finally, register the `@drawFrame` callback.
             if p < 0
               p = 0
 
+At the end of this tight loop we copy `p` both to `@buffer2` and to the
+framebuffer `@data`.
+
             ydest = y - 1
             @buffer2[x][ydest] = p
             index = (ydest * @xsize + x)
@@ -110,6 +138,9 @@ Finally, register the `@drawFrame` callback.
             bvalue = value
             avalue = 0xff
             @data[index] = (rvalue) | (gvalue << 8) | (bvalue << 16) | (avalue << 24)
+
+`@data` is then blitted onto the canvas. This has to be in two steps: first,
+from the typed array to the `@imageData` object, and thence to the 2D context.
 
         @imageData.data.set @buf8
         @ctx.putImageData @imageData, 0, 0
