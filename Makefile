@@ -2,14 +2,14 @@ SRC=start.coffee fire.coffee
 
 .PHONY: watch clean
 
-app.js: app.coffee
-	coffee -b -c $<
-
-app.coffee: $(SRC)
+app.js: $(SRC:coffee=js)
 	cat $+ > $@
 
+%.js: %.coffee
+	coffee -b -c $<
+
 clean:
-	rm -f app.js app.coffee
+	rm -f *.js
 
 watch:
 	$(MAKE) ; while true ; do inotifywait -qe close_write $(SRC) ; clear ; $(MAKE) ; done
