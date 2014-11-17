@@ -8,12 +8,14 @@ So we need some kind of player for these demo effects.
         @ctx = canvas.getContext '2d'
         @div.appendChild canvas
         @fx = null
+        @ctors = {}
 
-      addEffect: (name) ->
+      addEffect: (name, ctor) ->
         link = document.createElement 'a'
         link.className = 'fxsel'
         link.href = '#' + name
         link.textContent = name
+        @ctors[name] = ctor
         @div.appendChild link
 
       start: ->
@@ -23,9 +25,6 @@ So we need some kind of player for these demo effects.
       changeFx: =>
         if @fx?
           @fx.stop()
-        hash = window.location.hash or '#fire'
-        switch hash
-          when '#fire'
-            @fx = new Fire @ctx, @xsize, @ysize
-          when '#starfield'
-            @fx = new Starfield @ctx, @xsize, @ysize
+        hash = window.location.hash.substring 1 or 'fire'
+        ctor = @ctors[hash]
+        @fx = ctor @ctx
