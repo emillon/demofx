@@ -3,8 +3,12 @@ class Fire
     @buffer1 = @makeBuffer()
     @buffer2 = @makeBuffer()
     @cooling = @makeBuffer()
+
     @imageData = ctx.getImageData 0, 0, @xsize, @ysize
-    @data = @imageData.data
+    buf = new ArrayBuffer @imageData.data.length
+    @buf8 = new Uint8ClampedArray buf
+    @data = new Uint32Array buf
+
     window.requestAnimationFrame @drawFrame
     @coolingOffset = 0
     @prepareCoolingBuffer()
@@ -47,7 +51,6 @@ class Fire
 
   drawFrame: =>
     window.requestAnimationFrame @drawFrame
-
     for y in [@ysize - 3 .. @ysize - 1]
       for x in [0 .. @xsize - 1]
         @buffer1[x][y] = 0x80
@@ -67,17 +70,15 @@ class Fire
 
         ydest = y - 1
         @buffer2[x][ydest] = p
-        index = (ydest * @xsize + x) * 4
+        index = (ydest * @xsize + x)
         value = p
         rvalue = value
         gvalue = value
         bvalue = value
         avalue = 0xff
-        @data[index + 0] = rvalue
-        @data[index + 1] = gvalue
-        @data[index + 2] = bvalue
-        @data[index + 3] = avalue
+        @data[index] = (rvalue) | (gvalue << 8) | (bvalue << 16) | (avalue << 24)
 
+    @imageData.data.set @buf8
     @ctx.putImageData @imageData, 0, 0
     @buffer1 = @buffer2
     @coolingOffset++
