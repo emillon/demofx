@@ -9,4 +9,6 @@ start = ->
     new Starfield ctx, xsize, ysize
   app.addEffect 'cube', (ctx) ->
     new Cube ctx, xsize, ysize
+  app.addEffect 'wormhole', (ctx) ->
+    new Wormhole ctx, xsize, ysize
   app.start()
