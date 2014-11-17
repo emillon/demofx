@@ -1,5 +1,5 @@
-SRC=start.coffee fire.coffee
-SRC_LIT=fpsCounter.litcoffee
+SRC=start.coffee
+SRC_LIT=fpsCounter.litcoffee fire.litcoffee
 
 .PHONY: watch clean
 
