@@ -14,9 +14,9 @@ The stars here are uniformly distributed. This is nice for initial stars but a
 bit awkward for later stars since they seem to pop from anywhere.
 
       randomStar: ->
-          x = Math.floor (Math.random() * @xsize)
-          y = Math.floor (Math.random() * @ysize)
-          [x, y]
+        x = Math.floor (Math.random() * @xsize)
+        y = Math.floor (Math.random() * @ysize)
+        [x, y]
 
 At every frame, we just draw the stars (1 white pixel each, the rest is black)
 and call `@scatterStars`.
@@ -42,7 +42,7 @@ sort of tunnel effect.
           accel = 0.01
           dx = accel * (x - (@xsize / 2))
           dy = accel * (y - (@ysize / 2))
-          newStar = [x+dx, y+dy]
+          newStar = [x + dx, y + dy]
           if !@inbounds newStar
             newStar = @randomStar()
           @stars[i] = newStar

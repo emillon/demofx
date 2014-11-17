@@ -70,7 +70,7 @@ cooling buffer is uniform, the fire effect will look like a gradient.
 We start by we shooting some random seeds on the buffer.
 
         randomIntFromInterval = (min, max) ->
-            Math.floor (Math.random()*(max-min+1)+min)
+          Math.floor (Math.random() * (max - min + 1) + min)
 
         for i in [1..1000]
           x = randomIntFromInterval 1, (@xsize - 2)
@@ -115,13 +115,13 @@ comes from the cooling buffer.
 
         for y in [1 .. @ysize - 2]
           for x in [1 .. @xsize - 2]
-            n1 = @buffer1[x+1][y]
-            n2 = @buffer1[x-1][y]
-            n3 = @buffer1[x][y+1]
-            n4 = @buffer1[x][y-1]
+            n1 = @buffer1[x + 1][y]
+            n2 = @buffer1[x - 1][y]
+            n3 = @buffer1[x][y + 1]
+            n4 = @buffer1[x][y - 1]
 
-            c = @cooling[x][(y+@coolingOffset) % @ysize]
-            p = (n1+n2+n3+n4) / 4
+            c = @cooling[x][(y + @coolingOffset) % @ysize]
+            p = (n1 + n2 + n3 + n4) / 4
             p = p - c
             if p < 0
               p = 0
@@ -137,7 +137,11 @@ framebuffer `@data`.
             gvalue = value
             bvalue = value
             avalue = 0xff
-            @data[index] = (rvalue) | (gvalue << 8) | (bvalue << 16) | (avalue << 24)
+            v = rvalue
+            v |= (gvalue << 8)
+            v |= (bvalue << 16)
+            v |= (avalue << 24)
+            @data[index] = v
 
 `@data` is then blitted onto the canvas. This has to be in two steps: first,
 from the typed array to the `@imageData` object, and thence to the 2D context.

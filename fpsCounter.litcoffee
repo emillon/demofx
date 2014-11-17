@@ -23,9 +23,9 @@ every frame. It will changes only every `@updateMillis`.
 
       tick: ->
         now = Date.now()
-        delta = (now - @lastCalledTime)/1000
+        delta = (now - @lastCalledTime) / 1000
         @lastCalledTime = now
-        @fps = (1/delta).toFixed(1)
+        @fps = (1 / delta).toFixed(1)
         if @drawFpsReady
           @fpsText = @fps
           @drawFpsReady = false
