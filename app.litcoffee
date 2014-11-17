@@ -10,6 +10,10 @@ So we need some kind of player for these demo effects.
         @fx = null
         @ctors = {}
 
+Adding an effect has two... effects.
+First, it creates a link which links to a URL fragment.
+And it registers it into `@ctors`.
+
       addEffect: (name, ctor) ->
         link = document.createElement 'a'
         link.className = 'fxsel'
@@ -21,6 +25,10 @@ So we need some kind of player for these demo effects.
       start: ->
         window.onhashchange = @changeFx
         @changeFx()
+
+The following function is called on two occasions: at start, and whenever the
+hash changes (ie, when a '#name' link is clicked). It replaces `@fx` with the
+correct effect instance.
 
       changeFx: =>
         if @fx?
