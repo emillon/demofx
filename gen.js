@@ -434,17 +434,16 @@ App = (function() {
   App.prototype.start = function() {
     window.onhashchange = this.onHashChange;
     this.iframe.onload = this.onIFrameLoad;
-    if (window.location.hash === '') {
-      return window.location.hash = '#' + this.defaultFX;
-    }
+    return this.onHashChange();
   };
 
   App.prototype.onHashChange = function() {
-    var name;
-    name = window.location.hash.substring(1);
-    if (name === '') {
-      name = this.defaultFX;
+    var hash, name;
+    hash = window.location.hash;
+    if (hash === '') {
+      hash = '#' + this.defaultFX;
     }
+    name = hash.substring(1);
     this.changeFx(name);
     return this.loadDoc(name);
   };
