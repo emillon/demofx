@@ -47,13 +47,13 @@ within the iframe), it is necessary to update the fx and the hash.
       start: ->
         window.onhashchange = @onHashChange
         @iframe.onload = @onIFrameLoad
-        if window.location.hash == ''
-          window.location.hash = '#' + @defaultFX
+        @onHashChange()
 
       onHashChange: =>
-        name = window.location.hash.substring 1
-        if name == ''
-          name = @defaultFX
+        hash = window.location.hash
+        if hash == ''
+          hash = '#' + @defaultFX
+        name = hash.substring 1
         @changeFx name
         @loadDoc name
 
