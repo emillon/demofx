@@ -5,19 +5,23 @@ First, we define the points and edges of the cube.
     class Cube
       constructor: (@ctx, @xsize, @ysize) ->
         @request = window.requestAnimationFrame @drawFrame
-        #      G ------- H
-        #     /|        /|
-        # y  / |       / |
-        # ^ /  |   z  /  |
-        # |/   |  /  /   |
-        # E ------- F    |
-        # |    |/   |    |
-        # |    C ---|--- D
-        # |   /     |   /
-        # |  /      |  /
-        # | /       | /
-        # |/        |/
-        # A ------- B --> x
+
+        "
+             G ------- H
+            /|        /|
+        y  / |       / |
+        ^ /  |   z  /  |
+        |/   |  /  /   |
+        E ------- F    |
+        |    |/   |    |
+        |    C ---|--- D
+        |   /     |   /
+        |  /      |  /
+        | /       | /
+        |/        |/
+        A ------- B --> x
+        "
+
         a = [-1,-1,-1]
         b = [+1,-1,-1]
         c = [-1,+1,-1]
