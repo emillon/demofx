@@ -1,5 +1,6 @@
 SRC=start.coffee
-SRC_LIT=app.litcoffee fpsCounter.litcoffee fire.litcoffee starfield.litcoffee cube.litcoffee wormhole.litcoffee
+SRC_FX=fire.litcoffee starfield.litcoffee cube.litcoffee wormhole.litcoffee
+SRC_LIT=$(SRC_FX) app.litcoffee fpsCounter.litcoffee
 
 .PHONY: watch clean doc
 
@@ -13,10 +14,10 @@ gen.js: $(SRC:coffee=js) $(SRC_LIT:litcoffee=js)
 	coffee -b -c $<
 
 clean:
-	rm -f *.js
+	rm -rf *.js docs
 
 watch:
 	$(MAKE) ; while true ; do inotifywait -qe close_write $(SRC) $(SRC_LIT) ; clear ; $(MAKE) ; done
 
 doc:
-	docco $(SRC_LIT)
+	docco $(SRC_FX)
