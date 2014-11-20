@@ -1,8 +1,30 @@
-a.fxsel {
-  float: right;
-  clear: right;
+.demo {
+  float: left;
 }
 
-#app {
-  width: 1000px;
+.documentation {
+  overflow: hidden;
+  height: 100%;
+  width: auto;
+}
+
+iframe {
+  height: 100%;
+  width: 100%;
+  border: 0px;
+}
+
+html, body, #app {
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+}
+
+a {
+  padding-right: 5px;
+}
+
+.about {
+  padding: 20px;
+  font-size: small;
 }

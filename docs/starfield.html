@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>starfield.litcoffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="cube.html">
+                cube.litcoffee
+              </a>
+            
+              
+              <a class="source" href="fire.html">
+                fire.litcoffee
+              </a>
+            
+              
+              <a class="source" href="starfield.html">
+                starfield.litcoffee
+              </a>
+            
+              
+              <a class="source" href="wormhole.html">
+                wormhole.litcoffee
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>starfield.litcoffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>Most of you will recognize starfields as “that futuristic Windows screensaver”.
+Not so futuristic in 2014, but still does the trick.</p>
+<p>First, generate a few stars.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Starfield</span></span>
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@ctx</span>, <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>)</span> -&gt;</span>
+    nstars = <span class="hljs-number">200</span>
+    <span class="hljs-property">@stars</span> = (<span class="hljs-property">@randomStar</span>() <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> [<span class="hljs-number">1.</span>.nstars])
+
+    <span class="hljs-property">@request</span> = <span class="hljs-built_in">window</span>.requestAnimationFrame <span class="hljs-property">@drawFrame</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>The stars here are uniformly distributed. This is nice for initial stars but a
+bit awkward for later stars since they seem to pop from anywhere.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">randomStar</span>: <span class="hljs-function">-&gt;</span>
+    x = Math.floor (Math.random() * <span class="hljs-property">@xsize</span>)
+    y = Math.floor (Math.random() * <span class="hljs-property">@ysize</span>)
+    [x, y]</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>To stop it, well, just cancel the next frame.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">stop</span>: <span class="hljs-function">-&gt;</span>
+    <span class="hljs-built_in">window</span>.cancelAnimationFrame <span class="hljs-property">@request</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-literal">undefined</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>At every frame, we just draw the stars (1 white pixel each, the rest is black)
+and call <code>@scatterStars</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">drawFrame</span>: <span class="hljs-function">=&gt;</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-built_in">window</span>.requestAnimationFrame <span class="hljs-property">@drawFrame</span>
+
+    <span class="hljs-property">@ctx</span>.fillStyle = <span class="hljs-string">"black"</span>
+    <span class="hljs-property">@ctx</span>.fillRect <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>
+
+    <span class="hljs-property">@ctx</span>.fillStyle = <span class="hljs-string">"white"</span>
+    <span class="hljs-keyword">for</span> [x, y] <span class="hljs-keyword">in</span> <span class="hljs-property">@stars</span>
+      <span class="hljs-property">@ctx</span>.fillRect x, y, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>
+
+    <span class="hljs-property">@scatterStars</span>()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>This next function pulls the stars away from the center.
+The acceleration is proportional to the distance from the center, creating a
+sort of tunnel effect.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">scatterStars</span>: <span class="hljs-function">-&gt;</span>
+    <span class="hljs-keyword">for</span> [x, y], i <span class="hljs-keyword">in</span> <span class="hljs-property">@stars</span>
+      accel = <span class="hljs-number">0.01</span>
+      dx = accel * (x - (<span class="hljs-property">@xsize</span> / <span class="hljs-number">2</span>))
+      dy = accel * (y - (<span class="hljs-property">@ysize</span> / <span class="hljs-number">2</span>))
+      newStar = [x + dx, y + dy]
+      <span class="hljs-keyword">if</span> !<span class="hljs-property">@inbounds</span> newStar
+        newStar = <span class="hljs-property">@randomStar</span>()
+      <span class="hljs-property">@stars</span>[i] = newStar</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>When a star is not inbounds any more, it gets replaced by a new one.
+The circle of life.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">inbounds</span>: <span class="hljs-function"><span class="hljs-params">([x, y])</span> -&gt;</span>
+    (<span class="hljs-number">0</span> &lt;= x) <span class="hljs-keyword">and</span> (x &lt; <span class="hljs-property">@xsize</span>) <span class="hljs-keyword">and</span> (<span class="hljs-number">0</span> &lt;= y) <span class="hljs-keyword">and</span> (y &lt; <span class="hljs-property">@xsize</span>)</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

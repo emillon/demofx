@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>cube.litcoffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="cube.html">
+                cube.litcoffee
+              </a>
+            
+              
+              <a class="source" href="fire.html">
+                fire.litcoffee
+              </a>
+            
+              
+              <a class="source" href="starfield.html">
+                starfield.litcoffee
+              </a>
+            
+              
+              <a class="source" href="wormhole.html">
+                wormhole.litcoffee
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>cube.litcoffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>The cube effect is just a rotating wireframe cube, without occlusion.</p>
+<p>First, we define the points and edges of the cube.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Cube</span></span>
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@ctx</span>, <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>)</span> -&gt;</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-built_in">window</span>.requestAnimationFrame <span class="hljs-property">@drawFrame</span>
+
+    <span class="hljs-string">"
+         G ------- H
+        /|        /|
+    y  / |       / |
+    ^ /  |   z  /  |
+    |/   |  /  /   |
+    E ------- F    |
+    |    |/   |    |
+    |    C ---|--- D
+    |   /     |   /
+    |  /      |  /
+    | /       | /
+    |/        |/
+    A ------- B --&gt; x
+    "</span>
+
+    a = [-<span class="hljs-number">1</span>,-<span class="hljs-number">1</span>,-<span class="hljs-number">1</span>]
+    b = [+<span class="hljs-number">1</span>,-<span class="hljs-number">1</span>,-<span class="hljs-number">1</span>]
+    c = [-<span class="hljs-number">1</span>,+<span class="hljs-number">1</span>,-<span class="hljs-number">1</span>]
+    d = [+<span class="hljs-number">1</span>,+<span class="hljs-number">1</span>,-<span class="hljs-number">1</span>]
+    e = [-<span class="hljs-number">1</span>,-<span class="hljs-number">1</span>,+<span class="hljs-number">1</span>]
+    f = [+<span class="hljs-number">1</span>,-<span class="hljs-number">1</span>,+<span class="hljs-number">1</span>]
+    g = [-<span class="hljs-number">1</span>,+<span class="hljs-number">1</span>,+<span class="hljs-number">1</span>]
+    h = [+<span class="hljs-number">1</span>,+<span class="hljs-number">1</span>,+<span class="hljs-number">1</span>]
+    <span class="hljs-property">@edges</span> = [ [a,b] , [a,c] , [b,d] , [c,d]
+             , [e,f] , [e,g] , [f,h] , [g,h]
+             , [a,e] , [b,f] , [c,g] , [d,h]
+             ]
+    <span class="hljs-property">@frameNum</span> = <span class="hljs-number">0</span>
+
+  <span class="hljs-attribute">stop</span>: <span class="hljs-function">-&gt;</span>
+    <span class="hljs-built_in">window</span>.cancelAnimationFrame <span class="hljs-property">@request</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-literal">undefined</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>At every frame, we compute a new position. This path goes along a circle in
+front of the cube.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">drawFrame</span>: <span class="hljs-function">=&gt;</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-built_in">window</span>.requestAnimationFrame <span class="hljs-property">@drawFrame</span>
+    omega = <span class="hljs-number">0.05</span>
+    <span class="hljs-property">@frameNum</span>++
+    position =
+      <span class="hljs-attribute">x</span>: <span class="hljs-number">3</span> * Math.cos(omega * <span class="hljs-property">@frameNum</span>)
+      <span class="hljs-attribute">y</span>: <span class="hljs-number">3</span> * Math.sin(omega * <span class="hljs-property">@frameNum</span>)
+      <span class="hljs-attribute">z</span>: -<span class="hljs-number">10</span>
+    <span class="hljs-property">@ctx</span>.fillStyle = <span class="hljs-string">"black"</span>
+    <span class="hljs-property">@ctx</span>.fillRect <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>
+
+    <span class="hljs-property">@ctx</span>.strokeStyle = <span class="hljs-string">"white"</span>
+    <span class="hljs-property">@ctx</span>.beginPath()
+    <span class="hljs-keyword">for</span> [p1, p2] <span class="hljs-keyword">in</span> <span class="hljs-property">@edges</span>
+      [x1, y1] = <span class="hljs-property">@threeToTwo</span> p1, position
+      [x2, y2] = <span class="hljs-property">@threeToTwo</span> p2, position
+      <span class="hljs-property">@ctx</span>.moveTo x1, y1
+      <span class="hljs-property">@ctx</span>.lineTo x2, y2
+    <span class="hljs-property">@ctx</span>.stroke()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>The magic happens in this function. It projects a three-dimensional point onto
+the screen. It does this in a way such that the origin stays at the center of
+the screen.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">threeToTwo</span>: <span class="hljs-function"><span class="hljs-params">([px, py, pz], position)</span> -&gt;</span>
+    x = position.x - px
+    y = position.y - py
+    z = position.z - pz
+
+    zoom = Math.min <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>
+
+    sx = zoom * (x / z - position.x / position.z) + <span class="hljs-property">@xsize</span> / <span class="hljs-number">2</span>
+    sy = zoom * (y / z - position.y / position.z) + <span class="hljs-property">@ysize</span> / <span class="hljs-number">2</span>
+    [sx, sy]</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

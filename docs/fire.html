@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>fire.litcoffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="cube.html">
+                cube.litcoffee
+              </a>
+            
+              
+              <a class="source" href="fire.html">
+                fire.litcoffee
+              </a>
+            
+              
+              <a class="source" href="starfield.html">
+                starfield.litcoffee
+              </a>
+            
+              
+              <a class="source" href="wormhole.html">
+                wormhole.litcoffee
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>fire.litcoffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>The fire effect is perhaps the most recognizable demo effect. With it you can
+make burning letters, burning skulls, burning whatever.</p>
+<p>This effect can be seen as a simple cellular automaton: the temperature of every
+cell (pixel) is directly based on the temperature of its neighbours. Of course,
+this is not enough, or otherwise the effect will quickly converge to an array of
+tepid pixels.</p>
+<p>This one is largely inspired from the description that can be found on <a href="http://freespace.virgin.net/hugo.elias/models/m_fire.htm">Hugo
+Elias’ website</a>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Fire</span></span>
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@ctx</span>, <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>We need to use several buffers here:</p>
+<ul>
+<li><code>@buffer1</code> is the current temperature;</li>
+<li><code>@buffer2</code> is temperature we’re computing (it’s not possible to do it in a
+single pass, like in the game of life);</li>
+<li><code>@cooling</code> is a cooling map, that is to say the intensity with which the
+temperature will be adjusted.</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@buffer1</span> = <span class="hljs-property">@makeBuffer</span>()
+    <span class="hljs-property">@buffer2</span> = <span class="hljs-property">@makeBuffer</span>()
+    <span class="hljs-property">@cooling</span> = <span class="hljs-property">@makeBuffer</span>()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>To manipulate the canvas’ context, it is possible to use the normal underlying
+uint8, but I found it faster to use a typed uint32 array (and
+<a href="http://jsperf.com/canvas-pixel-manipulation">jsperf</a> agrees). So, we define an
+<code>ArrayBuffer</code> and two views on this buffer: <code>@buf8</code> for 8-bit access, and
+<code>@data</code> for 32-bit access. These variables alias the same underlying memory: we
+will fill <code>@data</code> and copy back using <code>@buf8</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@imageData</span> = ctx.getImageData <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>
+    buf = <span class="hljs-keyword">new</span> ArrayBuffer <span class="hljs-property">@imageData</span>.data.length
+    <span class="hljs-property">@buf8</span> = <span class="hljs-keyword">new</span> Uint8ClampedArray buf
+    <span class="hljs-property">@data</span> = <span class="hljs-keyword">new</span> Uint32Array buf</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Next we prepare the cooling buffer to contain random data, but no so random.
+More on this later.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@coolingOffset</span> = <span class="hljs-number">0</span>
+    <span class="hljs-property">@prepareCoolingBuffer</span>()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Prepare a FPS counter that will update its text every second.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@fpsCounter</span> = <span class="hljs-keyword">new</span> FpsCounter <span class="hljs-number">1000</span>
+    <span class="hljs-property">@fpsCounter</span>.start()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Finally, register the <code>@drawFrame</code> callback. We keep track of the request ID so
+that it is possible to cancel it.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@request</span> = <span class="hljs-built_in">window</span>.requestAnimationFrame <span class="hljs-property">@drawFrame</span>
+
+  <span class="hljs-attribute">stop</span>: <span class="hljs-function">-&gt;</span>
+    <span class="hljs-property">@fpsCounter</span>.stop()
+    <span class="hljs-built_in">window</span>.cancelAnimationFrame <span class="hljs-property">@request</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-literal">undefined</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>For general buffers, I use 2D arrays. I expected 1D arrays to be faster but it
+was not so obvious so I sticked to 2D ones.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">makeBuffer</span>: <span class="hljs-function">-&gt;</span>
+    buf = <span class="hljs-keyword">new</span> Array <span class="hljs-property">@xsize</span>
+    <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> [<span class="hljs-number">0</span> .. <span class="hljs-property">@xsize</span> - <span class="hljs-number">1</span>]
+      buf[x] = <span class="hljs-keyword">new</span> Array <span class="hljs-property">@ysize</span>
+      <span class="hljs-keyword">for</span> y <span class="hljs-keyword">in</span> [<span class="hljs-number">0</span> .. <span class="hljs-property">@ysize</span> - <span class="hljs-number">1</span>]
+        buf[x][y] = <span class="hljs-number">0</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>The cooling buffer is crucial because it defines how the fire will look. This is
+a chaotic algorithm, but still deterministic after all. For example, if the
+cooling buffer is uniform, the fire effect will look like a gradient.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">prepareCoolingBuffer</span>: <span class="hljs-function">-&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>We start by we shooting some random seeds on the buffer.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function">    <span class="hljs-title">randomIntFromInterval</span> = <span class="hljs-params">(min, max)</span> -&gt;</span>
+      Math.floor (Math.random() * (max - min + <span class="hljs-number">1</span>) + min)
+
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [<span class="hljs-number">1.</span><span class="hljs-number">.1000</span>]
+      x = randomIntFromInterval <span class="hljs-number">1</span>, (<span class="hljs-property">@xsize</span> - <span class="hljs-number">2</span>)
+      y = randomIntFromInterval <span class="hljs-number">1</span>, (<span class="hljs-property">@ysize</span> - <span class="hljs-number">2</span>)
+      v = randomIntFromInterval <span class="hljs-number">0</span>, <span class="hljs-number">0xff</span>
+      <span class="hljs-property">@cooling</span>[x][y] = v</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Then we apply several smoothing passes. This is just a low-pass filter.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function">    <span class="hljs-title">smooth</span> = <span class="hljs-params">(buf)</span> =&gt;</span>
+      newBuf = <span class="hljs-property">@makeBuffer</span>()
+      <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> [<span class="hljs-number">1</span> .. <span class="hljs-property">@xsize</span> - <span class="hljs-number">2</span>]
+        <span class="hljs-keyword">for</span> y <span class="hljs-keyword">in</span> [<span class="hljs-number">1</span> .. <span class="hljs-property">@ysize</span> - <span class="hljs-number">2</span>]
+          v = <span class="hljs-number">0</span>
+          <span class="hljs-keyword">for</span> dx <span class="hljs-keyword">in</span> [-<span class="hljs-number">1</span> .. <span class="hljs-number">1</span>]
+            <span class="hljs-keyword">for</span> dy <span class="hljs-keyword">in</span> [-<span class="hljs-number">1</span> .. <span class="hljs-number">1</span>]
+              v += buf[x + dx][y + dy]
+          v /= <span class="hljs-number">9</span>
+          newBuf[x][y] = v
+      <span class="hljs-keyword">return</span> newBuf</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>The result should look like stains.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [<span class="hljs-number">1.</span><span class="hljs-number">.50</span>]
+      <span class="hljs-property">@cooling</span> = smooth <span class="hljs-property">@cooling</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>The <code>@drawFrame</code> function is the heart of the fire effect.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">drawFrame</span>: <span class="hljs-function">=&gt;</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-built_in">window</span>.requestAnimationFrame <span class="hljs-property">@drawFrame</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>First, we fill the bottom of the screen with hot pixels. This corresponds to the
+heat source that produces flames.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">for</span> y <span class="hljs-keyword">in</span> [<span class="hljs-property">@ysize</span> - <span class="hljs-number">3</span> .. <span class="hljs-property">@ysize</span> - <span class="hljs-number">1</span>]
+      <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> [<span class="hljs-number">0</span> .. <span class="hljs-property">@xsize</span> - <span class="hljs-number">1</span>]
+        <span class="hljs-property">@buffer1</span>[x][y] = <span class="hljs-number">0x80</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Then, we iterate on each pixel (minus the borders) where we compute the new
+value, <code>p</code>. It is the mean of its neighbour, less the cooling amount <code>c</code> that
+comes from the cooling buffer.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">for</span> y <span class="hljs-keyword">in</span> [<span class="hljs-number">1</span> .. <span class="hljs-property">@ysize</span> - <span class="hljs-number">2</span>]
+      <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> [<span class="hljs-number">1</span> .. <span class="hljs-property">@xsize</span> - <span class="hljs-number">2</span>]
+        n1 = <span class="hljs-property">@buffer1</span>[x + <span class="hljs-number">1</span>][y]
+        n2 = <span class="hljs-property">@buffer1</span>[x - <span class="hljs-number">1</span>][y]
+        n3 = <span class="hljs-property">@buffer1</span>[x][y + <span class="hljs-number">1</span>]
+        n4 = <span class="hljs-property">@buffer1</span>[x][y - <span class="hljs-number">1</span>]
+
+        c = <span class="hljs-property">@cooling</span>[x][(y + <span class="hljs-property">@coolingOffset</span>) % <span class="hljs-property">@ysize</span>]
+        p = (n1 + n2 + n3 + n4) / <span class="hljs-number">4</span>
+        p = p - c
+        <span class="hljs-keyword">if</span> p &lt; <span class="hljs-number">0</span>
+          p = <span class="hljs-number">0</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>At the end of this tight loop we copy <code>p</code> both to <code>@buffer2</code> and to the
+framebuffer <code>@data</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        ydest = y - <span class="hljs-number">1</span>
+        <span class="hljs-property">@buffer2</span>[x][ydest] = p
+        index = (ydest * <span class="hljs-property">@xsize</span> + x)
+        value = p
+        rvalue = value
+        gvalue = value
+        bvalue = value
+        avalue = <span class="hljs-number">0xff</span>
+        v = rvalue
+        v |= (gvalue &lt;&lt; <span class="hljs-number">8</span>)
+        v |= (bvalue &lt;&lt; <span class="hljs-number">16</span>)
+        v |= (avalue &lt;&lt; <span class="hljs-number">24</span>)
+        <span class="hljs-property">@data</span>[index] = v</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p><code>@data</code> is then blitted onto the canvas. This has to be in two steps: first,
+from the typed array to the <code>@imageData</code> object, and thence to the 2D context.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@imageData</span>.data.set <span class="hljs-property">@buf8</span>
+    <span class="hljs-property">@ctx</span>.putImageData <span class="hljs-property">@imageData</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>
+    <span class="hljs-property">@buffer1</span> = <span class="hljs-property">@buffer2</span>
+    <span class="hljs-property">@coolingOffset</span>++
+
+    fpsText = <span class="hljs-property">@fpsCounter</span>.tick()
+    <span class="hljs-property">@ctx</span>.fillStyle = <span class="hljs-string">"red"</span>
+    <span class="hljs-property">@ctx</span>.fillText fpsText, <span class="hljs-number">10</span>, <span class="hljs-number">10</span></pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
