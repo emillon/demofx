@@ -34,23 +34,45 @@ And it registers it into `@ctors`.
         @ctors[name] = ctor
         @linkDiv.appendChild link
 
+Then, we have some bookkeeping to do to keep several things in sync:
+
+  - the main URL's hash;
+  - the fx running;
+  - the documentation iframe;
+
+When the hash changes, it is necessary to update the fx and the doc.
+When the iframe changes (for example, if the user navigates to another page from
+within the iframe), it is necessary to update the fx and the hash.
+
       start: ->
-        window.onhashchange = @changeFx
-        @changeFx()
+        window.onhashchange = @onHashChange
+        @iframe.onload = @onIFrameLoad
+        if window.location.hash == ''
+          defaultFX = 'cube'
+          window.location.hash = '#' + defaultFX
 
-The following function is called on two occasions: at start, and whenever the
-hash changes (ie, when a '#name' link is clicked). It replaces `@fx` with the
-correct effect instance.
+      onHashChange: =>
+        name = window.location.hash.substring 1
+        @changeFx name
+        @loadDoc name
 
-      changeFx: =>
+Since we will be updating the hash in this next function, it is not necessary to
+explicitely call `@changeFx` from `@onIFrameLoad`.
+
+      onIFrameLoad: =>
+        last = (arr) ->
+          arr[arr.length - 1]
+        lastPath = last(@iframe.contentWindow.location.pathname.split('/'))
+        name = lastPath.split('.')[0]
+        window.location.hash = "#" + name
+
+The following function replaces `@fx` with the correct effect instance.
+
+      changeFx: (name) =>
         if @fx?
           @fx.stop()
-        hash = window.location.hash.substring 1 or 'fire'
-        ctor = @ctors[hash]
+        ctor = @ctors[name]
         @fx = ctor @ctx
-        @loadDoc hash
-
-Finally, when an effect is reloaded, update the documentation iframe.
 
       loadDoc: (hash) ->
         @iframe.src = "docs/#{hash}.html"
