@@ -2,6 +2,7 @@ So we need some kind of player for these demo effects.
 
     class App
       constructor: (@div, @xsize, @ysize) ->
+        @defaultFX = 'cube'
         demoDiv = document.createElement 'div'
         demoDiv.className = 'demo'
         demoDiv.style.width = @xsize + 'px'
@@ -13,8 +14,14 @@ So we need some kind of player for these demo effects.
         demoDiv.appendChild canvas
         @fx = null
         @ctors = {}
-        @linkDiv = document.createElement 'div'
-        demoDiv.appendChild @linkDiv
+        aboutDiv = document.createElement 'div'
+        aboutDiv.className = 'about'
+        aboutDiv.textContent = "
+        To see the different effects,
+        please click on the 'Jump to'
+        button in the top right corner.
+        "
+        demoDiv.appendChild aboutDiv
         @docDiv = document.createElement 'div'
         @docDiv.className = 'documentation'
         @iframe = document.createElement 'iframe'
@@ -22,17 +29,10 @@ So we need some kind of player for these demo effects.
         @div.appendChild @docDiv
         @docDiv.appendChild @iframe
 
-Adding an effect has two... effects.
-First, it creates a link which links to a URL fragment.
-And it registers it into `@ctors`.
+Adding an effect just registers it into `@ctors`.
 
       addEffect: (name, ctor) ->
-        link = document.createElement 'a'
-        link.className = 'fxsel'
-        link.href = '#' + name
-        link.textContent = name
         @ctors[name] = ctor
-        @linkDiv.appendChild link
 
 Then, we have some bookkeeping to do to keep several things in sync:
 
@@ -48,11 +48,12 @@ within the iframe), it is necessary to update the fx and the hash.
         window.onhashchange = @onHashChange
         @iframe.onload = @onIFrameLoad
         if window.location.hash == ''
-          defaultFX = 'cube'
-          window.location.hash = '#' + defaultFX
+          window.location.hash = '#' + @defaultFX
 
       onHashChange: =>
         name = window.location.hash.substring 1
+        if name == ''
+          name = @defaultFX
         @changeFx name
         @loadDoc name
 
@@ -71,6 +72,7 @@ The following function replaces `@fx` with the correct effect instance.
       changeFx: (name) =>
         if @fx?
           @fx.stop()
+        console.log name
         ctor = @ctors[name]
         @fx = ctor @ctx
 

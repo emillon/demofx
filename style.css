@@ -23,3 +23,8 @@ html, body, #app {
 a {
   padding-right: 5px;
 }
+
+.about {
+  padding: 20px;
+  font-size: small;
+}
