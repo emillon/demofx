@@ -1,5 +1,5 @@
-I saw a piece named [delta] the other day, and I would like to recreate it (or
-at least, an impression of it) in the browser.
+I saw a piece named [delta] the other day, and I wanted to recreate it (or at
+least, an impression of it) in the browser.
 
 Visually, this piece is a red rectangle on which white rectangles "zoom" in.
 This comes with an audio effect known as a [Shepard tone][shepardtone]. The
