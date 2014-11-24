@@ -1,5 +1,5 @@
 SRC=start.coffee
-SRC_FX=fire.litcoffee starfield.litcoffee cube.litcoffee wormhole.litcoffee
+SRC_FX=fire.litcoffee starfield.litcoffee cube.litcoffee wormhole.litcoffee delta.litcoffee
 SRC_LIT=$(SRC_FX) app.litcoffee fpsCounter.litcoffee
 
 .PHONY: all watch clean doc

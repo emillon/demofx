@@ -11,4 +11,6 @@ start = ->
     new Cube ctx, xsize, ysize
   app.addEffect 'wormhole', (ctx) ->
     new Wormhole ctx, xsize, ysize
+  app.addEffect 'delta', (ctx) ->
+    new Delta ctx, xsize, ysize
   app.start()
