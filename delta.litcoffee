@@ -26,7 +26,7 @@ A few words on the instance variables:
     class Delta
       constructor: (@ctx, @xsize, @ysize) ->
         @request = window.requestAnimationFrame @drawFrame
-        @rects = (0.05 ** (i/9) for i in [1..18])
+        @rects = (0.05 ** (i / 9) for i in [1..18])
         @accel = 1 + 0.001
         @audioCtx = new AudioContext()
         @tones = []
@@ -106,7 +106,7 @@ This function is called whenever a rectangle hits the border. We either create a
 new oscillator, or put the most ancient one in head position. Its frequency will
 be automatically adusted.
 
-      updateTones: () ->
+      updateTones: ->
         @phase = 0
         if @tones.length >= @overlap
           tone = @tones.pop()
@@ -124,17 +124,19 @@ to a tone-local `phi` (still between 0 and 1) first.
         phi = (i + @phase) / @overlap
 
         g = 4 * phi - 4 * phi * phi
-        g = Math.sin(phi*Math.PI)
-        g = g*g
+        g = Math.sin(phi * Math.PI)
+        g = g * g
         gain.gain.value = g
         freq = @freqStart + phi * (@freqEnd - @freqStart)
         osc.frequency.value = freq
 
         if @drawDebug
+          x = @freqStart / 2
           @ctx.fillStyle = "green"
-          @ctx.fillRect (@freqStart/2), 0, (@freqEnd-@freqStart)/2, 10
-          @ctx.fillRect (@freqStart/2), 10*(i+1), ((freq-@freqStart)/2), 10
+          @ctx.fillRect x, 0, ((@freqEnd - @freqStart) / 2), 10
+          @ctx.fillRect x, (10 * (i + 1)), ((freq - @freqStart) / 2), 10
 
+          x = 500
           @ctx.fillStyle = "blue"
-          @ctx.fillRect 500, 0, (100), 10
-          @ctx.fillRect 500, 10*(i+1), (g*100), 10
+          @ctx.fillRect x, 0, 100, 10
+          @ctx.fillRect x, (10 * (i + 1)), (g * 100), 10
