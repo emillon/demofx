@@ -2,7 +2,9 @@ SRC=start.coffee
 SRC_FX=fire.litcoffee starfield.litcoffee cube.litcoffee wormhole.litcoffee delta.litcoffee
 SRC_LIT=$(SRC_FX) app.litcoffee fpsCounter.litcoffee
 
-.PHONY: all watch clean doc
+SNAP=index.html gen.js style.css docs
+
+.PHONY: all watch clean doc snapshot
 
 all: gen.js doc
 
@@ -23,3 +25,14 @@ watch:
 
 doc:
 	docco $(SRC_FX)
+
+snapshot:
+	$(MAKE)
+	$(eval TMPDIR:=$(shell mktemp -d))
+	cp -rfv $(SNAP) $(TMPDIR)/
+	git checkout gh-pages
+	cp -rfv $(TMPDIR)/* .
+	git add $(SNAP)
+	git commit -m 'snapshot'
+	git checkout master
+	rm -rf $(TMPDIR)
