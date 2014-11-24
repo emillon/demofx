@@ -123,9 +123,7 @@ to a tone-local `phi` (still between 0 and 1) first.
       adjustTone: ([osc, gain], i) ->
         phi = (i + @phase) / @overlap
 
-        g = 4 * phi - 4 * phi * phi
-        g = Math.sin(phi * Math.PI)
-        g = g * g
+        g = 0.5 - 0.5 * Math.cos(phi * 2 * Math.PI)
         gain.gain.value = g
         freq = @freqStart + phi * (@freqEnd - @freqStart)
         osc.frequency.value = freq
