@@ -27,13 +27,13 @@ A few words on the instance variables:
       constructor: (@ctx, @xsize, @ysize) ->
         @request = window.requestAnimationFrame @drawFrame
         @rects = (0.05 ** (i/9) for i in [1..18])
-        @accel = 1 + 0.004
+        @accel = 1 + 0.001
         @audioCtx = new AudioContext()
         @tones = []
         @phase = 0
         @overlap = 4
         @freqStart = 55
-        @freqEnd = 440
+        @freqEnd = 220
         @drawDebug = false
         document.onkeydown = =>
           @drawDebug = true
@@ -103,15 +103,13 @@ an array of rectangles that grow in an exponential fashion.
         @ctx.strokeRect x, y, xs, ys
 
 This function is called whenever a rectangle hits the border. We either create a
-new oscillator, or reuse the most ancient one to set it with a correct
-frequency.
+new oscillator, or put the most ancient one in head position. Its frequency will
+be automatically adusted.
 
       updateTones: () ->
         @phase = 0
         if @tones.length >= @overlap
           tone = @tones.pop()
-          [osc, gain] = tone
-          osc.frequency.value = @freqStart
           @tones.unshift tone
         else
           tone = @newTone()
@@ -119,13 +117,15 @@ frequency.
           @tones.unshift tone
 
 This is called at every frame to adjust parameters of every tone with respect to
-`@phase`.
+`@phase`. The thing is, `@phase` is common to every tone, so we have to map it
+to a tone-local `phi` (still between 0 and 1) first.
 
       adjustTone: ([osc, gain], i) ->
         phi = (i + @phase) / @overlap
 
         g = 4 * phi - 4 * phi * phi
         g = Math.sin(phi*Math.PI)
+        g = g*g
         gain.gain.value = g
         freq = @freqStart + phi * (@freqEnd - @freqStart)
         osc.frequency.value = freq
