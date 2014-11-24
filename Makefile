@@ -2,7 +2,9 @@ SRC=start.coffee
 SRC_FX=fire.litcoffee starfield.litcoffee cube.litcoffee wormhole.litcoffee
 SRC_LIT=$(SRC_FX) app.litcoffee fpsCounter.litcoffee
 
-.PHONY: watch clean doc
+.PHONY: all watch clean doc
+
+all: gen.js doc
 
 gen.js: $(SRC:coffee=js) $(SRC_LIT:litcoffee=js)
 	cat $+ > $@
