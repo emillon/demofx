@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>delta.litcoffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="cube.html">
+                cube.litcoffee
+              </a>
+            
+              
+              <a class="source" href="delta.html">
+                delta.litcoffee
+              </a>
+            
+              
+              <a class="source" href="fire.html">
+                fire.litcoffee
+              </a>
+            
+              
+              <a class="source" href="starfield.html">
+                starfield.litcoffee
+              </a>
+            
+              
+              <a class="source" href="wormhole.html">
+                wormhole.litcoffee
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>delta.litcoffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>I saw a piece named <a href="http://www.ratsi.com/works/echolyse/delta/">delta</a> the other day, and I would like to recreate it (or
+at least, an impression of it) in the browser.</p>
+<p>Visually, this piece is a red rectangle on which white rectangles “zoom” in.
+This comes with an audio effect known as a <a href="https://en.wikipedia.org/wiki/Shepard_tone">Shepard tone</a>. The
+tones are in sync with the rectangles zooming in.</p>
+<p>A few words on the instance variables:</p>
+<ul>
+<li><code>@rects</code> contains the relative sizes of the rectangles. 1 is a full-frame
+rectangle.</li>
+<li><code>@accel</code> is the amount it will be multiplicated by at every frame.</li>
+<li><code>@audioCtx</code> is the Web Audio context.</li>
+<li><code>@tones</code> is an array containing couples of (oscillator node, gain node).</li>
+<li><code>@phase</code> is an animation phase, between 0 and 1. When a rectangle hits the
+border, it is approximately 1 and will reset to 0.</li>
+<li><code>@overlap</code> is the number of active tones at a given time.</li>
+<li><code>@freqStart</code> and <code>@freqEnd</code> are extreme frequencies. When oscillators have
+this frequency, their gain is 0.</li>
+<li><code>@drawDebug</code> defines whether to draw debug information (frequencies and
+gains: hit a key and it should be displayed on the screen).</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Delta</span></span>
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@ctx</span>, <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>)</span> -&gt;</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-built_in">window</span>.requestAnimationFrame <span class="hljs-property">@drawFrame</span>
+    <span class="hljs-property">@rects</span> = (<span class="hljs-number">0.05</span> ** (i/<span class="hljs-number">9</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [<span class="hljs-number">1.</span><span class="hljs-number">.18</span>])
+    <span class="hljs-property">@accel</span> = <span class="hljs-number">1</span> + <span class="hljs-number">0.001</span>
+    <span class="hljs-property">@audioCtx</span> = <span class="hljs-keyword">new</span> AudioContext()
+    <span class="hljs-property">@tones</span> = []
+    <span class="hljs-property">@phase</span> = <span class="hljs-number">0</span>
+    <span class="hljs-property">@overlap</span> = <span class="hljs-number">4</span>
+    <span class="hljs-property">@freqStart</span> = <span class="hljs-number">55</span>
+    <span class="hljs-property">@freqEnd</span> = <span class="hljs-number">220</span>
+    <span class="hljs-property">@drawDebug</span> = <span class="hljs-literal">false</span>
+    <span class="hljs-built_in">document</span>.onkeydown = <span class="hljs-function">=&gt;</span>
+      <span class="hljs-property">@drawDebug</span> = <span class="hljs-literal">true</span>
+    <span class="hljs-built_in">document</span>.onkeyup = <span class="hljs-function">=&gt;</span>
+      <span class="hljs-property">@drawDebug</span> = <span class="hljs-literal">false</span>
+
+  <span class="hljs-attribute">stop</span>: <span class="hljs-function">-&gt;</span>
+    <span class="hljs-built_in">window</span>.cancelAnimationFrame <span class="hljs-property">@request</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-literal">undefined</span>
+    <span class="hljs-keyword">for</span> [osc, _] <span class="hljs-keyword">in</span> <span class="hljs-property">@tones</span>
+      osc.stop()
+    <span class="hljs-built_in">document</span>.onkeydown = <span class="hljs-literal">undefined</span>
+    <span class="hljs-built_in">document</span>.onkeyup = <span class="hljs-literal">undefined</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>The Web Audio API is quite straightforward: you create nodes, connect them
+together, et voilà. Here, every oscillator node is connected to a gain node.
+Here, multiple gain nodes are connected to the same output node
+<code>@audioCtx.destination</code>. In that case, the inputs are mixed together.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">startTone</span>: <span class="hljs-function"><span class="hljs-params">([osc, gain])</span> -&gt;</span>
+    osc.start()
+    gain.connect <span class="hljs-property">@audioCtx</span>.destination
+
+  <span class="hljs-attribute">stopTone</span>: <span class="hljs-function"><span class="hljs-params">([osc, gain])</span> -&gt;</span>
+    osc.stop()
+
+  <span class="hljs-attribute">newTone</span>: <span class="hljs-function">-&gt;</span>
+    osc = <span class="hljs-property">@audioCtx</span>.createOscillator()
+    gain = <span class="hljs-property">@audioCtx</span>.createGain()
+    osc.type = <span class="hljs-string">'triangle'</span>
+    osc.connect gain
+    tone = [osc, gain]
+    freq = <span class="hljs-property">@freqStart</span>
+    osc.frequency.value = freq
+    gain.gain.value = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">return</span> [osc, gain]</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>The frame drawing code is very much like the starfield effect: we keep track of
+an array of rectangles that grow in an exponential fashion.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">drawFrame</span>: <span class="hljs-function">=&gt;</span>
+    <span class="hljs-property">@request</span> = <span class="hljs-built_in">window</span>.requestAnimationFrame <span class="hljs-property">@drawFrame</span>
+
+    <span class="hljs-property">@ctx</span>.fillStyle = <span class="hljs-string">"red"</span>
+    <span class="hljs-property">@ctx</span>.fillRect <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>
+
+    <span class="hljs-property">@ctx</span>.strokeStyle = <span class="hljs-string">"white"</span>
+    <span class="hljs-keyword">for</span> size, i <span class="hljs-keyword">in</span> <span class="hljs-property">@rects</span>
+      <span class="hljs-property">@drawRect</span> size
+      size *= <span class="hljs-property">@accel</span>
+      <span class="hljs-keyword">if</span> size &gt;= <span class="hljs-number">1</span>
+        size = <span class="hljs-number">0.05</span>
+        <span class="hljs-property">@updateTones</span>()
+      <span class="hljs-property">@rects</span>[i] = size
+
+    <span class="hljs-property">@phase</span> += <span class="hljs-number">3</span> * (Math.log <span class="hljs-property">@accel</span>)
+    <span class="hljs-keyword">for</span> tone, i <span class="hljs-keyword">in</span> <span class="hljs-property">@tones</span>
+      <span class="hljs-property">@adjustTone</span> tone, i
+
+  <span class="hljs-attribute">drawRect</span>: <span class="hljs-function"><span class="hljs-params">(size)</span> -&gt;</span>
+    lw = <span class="hljs-number">10</span> * size
+    <span class="hljs-property">@ctx</span>.lineWidth = lw
+    xs = size * <span class="hljs-property">@xsize</span>
+    ys = size * <span class="hljs-property">@ysize</span>
+    x = (<span class="hljs-property">@xsize</span> - xs) / <span class="hljs-number">2</span>
+    y = (<span class="hljs-property">@ysize</span> - ys) / <span class="hljs-number">2</span>
+    <span class="hljs-property">@ctx</span>.strokeRect x, y, xs, ys</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>This function is called whenever a rectangle hits the border. We either create a
+new oscillator, or put the most ancient one in head position. Its frequency will
+be automatically adusted.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">updateTones</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+    <span class="hljs-property">@phase</span> = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-property">@tones</span>.length &gt;= <span class="hljs-property">@overlap</span>
+      tone = <span class="hljs-property">@tones</span>.pop()
+      <span class="hljs-property">@tones</span>.unshift tone
+    <span class="hljs-keyword">else</span>
+      tone = <span class="hljs-property">@newTone</span>()
+      <span class="hljs-property">@startTone</span> tone
+      <span class="hljs-property">@tones</span>.unshift tone</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>This is called at every frame to adjust parameters of every tone with respect to
+<code>@phase</code>. The thing is, <code>@phase</code> is common to every tone, so we have to map it
+to a tone-local <code>phi</code> (still between 0 and 1) first.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">adjustTone</span>: <span class="hljs-function"><span class="hljs-params">([osc, gain], i)</span> -&gt;</span>
+    phi = (i + <span class="hljs-property">@phase</span>) / <span class="hljs-property">@overlap</span>
+
+    g = <span class="hljs-number">4</span> * phi - <span class="hljs-number">4</span> * phi * phi
+    g = Math.sin(phi*Math.PI)
+    g = g*g
+    gain.gain.value = g
+    freq = <span class="hljs-property">@freqStart</span> + phi * (<span class="hljs-property">@freqEnd</span> - <span class="hljs-property">@freqStart</span>)
+    osc.frequency.value = freq
+
+    <span class="hljs-keyword">if</span> <span class="hljs-property">@drawDebug</span>
+      <span class="hljs-property">@ctx</span>.fillStyle = <span class="hljs-string">"green"</span>
+      <span class="hljs-property">@ctx</span>.fillRect (<span class="hljs-property">@freqStart</span>/<span class="hljs-number">2</span>), <span class="hljs-number">0</span>, (<span class="hljs-property">@freqEnd</span>-<span class="hljs-property">@freqStart</span>)/<span class="hljs-number">2</span>, <span class="hljs-number">10</span>
+      <span class="hljs-property">@ctx</span>.fillRect (<span class="hljs-property">@freqStart</span>/<span class="hljs-number">2</span>), <span class="hljs-number">10</span>*(i+<span class="hljs-number">1</span>), ((freq-<span class="hljs-property">@freqStart</span>)/<span class="hljs-number">2</span>), <span class="hljs-number">10</span>
+
+      <span class="hljs-property">@ctx</span>.fillStyle = <span class="hljs-string">"blue"</span>
+      <span class="hljs-property">@ctx</span>.fillRect <span class="hljs-number">500</span>, <span class="hljs-number">0</span>, (<span class="hljs-number">100</span>), <span class="hljs-number">10</span>
+      <span class="hljs-property">@ctx</span>.fillRect <span class="hljs-number">500</span>, <span class="hljs-number">10</span>*(i+<span class="hljs-number">1</span>), (g*<span class="hljs-number">100</span>), <span class="hljs-number">10</span></pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
