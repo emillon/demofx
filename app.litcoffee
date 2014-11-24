@@ -72,7 +72,6 @@ The following function replaces `@fx` with the correct effect instance.
       changeFx: (name) =>
         if @fx?
           @fx.stop()
-        console.log name
         ctor = @ctors[name]
         @fx = ctor @ctx
 
