@@ -1,5 +1,5 @@
 install:
-    - npm install coffee-script coffeelint
+    - npm install coffee-script coffeelint docco
 script:
     - make
     - coffeelint *.coffee *.litcoffee
