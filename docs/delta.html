@@ -63,8 +63,8 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <p>I saw a piece named <a href="http://www.ratsi.com/works/echolyse/delta/">delta</a> the other day, and I would like to recreate it (or
-at least, an impression of it) in the browser.</p>
+              <p>I saw a piece named <a href="http://www.ratsi.com/works/echolyse/delta/">delta</a> the other day, and I wanted to recreate it (or at
+least, an impression of it) in the browser.</p>
 <p>Visually, this piece is a red rectangle on which white rectangles “zoom” in.
 This comes with an audio effect known as a <a href="https://en.wikipedia.org/wiki/Shepard_tone">Shepard tone</a>. The
 tones are in sync with the rectangles zooming in.</p>
@@ -89,7 +89,7 @@ gains: hit a key and it should be displayed on the screen).</li>
             <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Delta</span></span>
   <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@ctx</span>, <span class="hljs-property">@xsize</span>, <span class="hljs-property">@ysize</span>)</span> -&gt;</span>
     <span class="hljs-property">@request</span> = <span class="hljs-built_in">window</span>.requestAnimationFrame <span class="hljs-property">@drawFrame</span>
-    <span class="hljs-property">@rects</span> = (<span class="hljs-number">0.05</span> ** (i/<span class="hljs-number">9</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [<span class="hljs-number">1.</span><span class="hljs-number">.18</span>])
+    <span class="hljs-property">@rects</span> = (<span class="hljs-number">0.05</span> ** (i / <span class="hljs-number">9</span>) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> [<span class="hljs-number">1.</span><span class="hljs-number">.18</span>])
     <span class="hljs-property">@accel</span> = <span class="hljs-number">1</span> + <span class="hljs-number">0.001</span>
     <span class="hljs-property">@audioCtx</span> = <span class="hljs-keyword">new</span> AudioContext()
     <span class="hljs-property">@tones</span> = []
@@ -202,7 +202,7 @@ be automatically adusted.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">updateTones</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">updateTones</span>: <span class="hljs-function">-&gt;</span>
     <span class="hljs-property">@phase</span> = <span class="hljs-number">0</span>
     <span class="hljs-keyword">if</span> <span class="hljs-property">@tones</span>.length &gt;= <span class="hljs-property">@overlap</span>
       tone = <span class="hljs-property">@tones</span>.pop()
@@ -230,21 +230,21 @@ to a tone-local <code>phi</code> (still between 0 and 1) first.</p>
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">adjustTone</span>: <span class="hljs-function"><span class="hljs-params">([osc, gain], i)</span> -&gt;</span>
     phi = (i + <span class="hljs-property">@phase</span>) / <span class="hljs-property">@overlap</span>
 
-    g = <span class="hljs-number">4</span> * phi - <span class="hljs-number">4</span> * phi * phi
-    g = Math.sin(phi*Math.PI)
-    g = g*g
+    g = <span class="hljs-number">0.5</span> - <span class="hljs-number">0.5</span> * Math.cos(phi * <span class="hljs-number">2</span> * Math.PI)
     gain.gain.value = g
     freq = <span class="hljs-property">@freqStart</span> + phi * (<span class="hljs-property">@freqEnd</span> - <span class="hljs-property">@freqStart</span>)
     osc.frequency.value = freq
 
     <span class="hljs-keyword">if</span> <span class="hljs-property">@drawDebug</span>
+      x = <span class="hljs-property">@freqStart</span> / <span class="hljs-number">2</span>
       <span class="hljs-property">@ctx</span>.fillStyle = <span class="hljs-string">"green"</span>
-      <span class="hljs-property">@ctx</span>.fillRect (<span class="hljs-property">@freqStart</span>/<span class="hljs-number">2</span>), <span class="hljs-number">0</span>, (<span class="hljs-property">@freqEnd</span>-<span class="hljs-property">@freqStart</span>)/<span class="hljs-number">2</span>, <span class="hljs-number">10</span>
-      <span class="hljs-property">@ctx</span>.fillRect (<span class="hljs-property">@freqStart</span>/<span class="hljs-number">2</span>), <span class="hljs-number">10</span>*(i+<span class="hljs-number">1</span>), ((freq-<span class="hljs-property">@freqStart</span>)/<span class="hljs-number">2</span>), <span class="hljs-number">10</span>
+      <span class="hljs-property">@ctx</span>.fillRect x, <span class="hljs-number">0</span>, ((<span class="hljs-property">@freqEnd</span> - <span class="hljs-property">@freqStart</span>) / <span class="hljs-number">2</span>), <span class="hljs-number">10</span>
+      <span class="hljs-property">@ctx</span>.fillRect x, (<span class="hljs-number">10</span> * (i + <span class="hljs-number">1</span>)), ((freq - <span class="hljs-property">@freqStart</span>) / <span class="hljs-number">2</span>), <span class="hljs-number">10</span>
 
+      x = <span class="hljs-number">500</span>
       <span class="hljs-property">@ctx</span>.fillStyle = <span class="hljs-string">"blue"</span>
-      <span class="hljs-property">@ctx</span>.fillRect <span class="hljs-number">500</span>, <span class="hljs-number">0</span>, (<span class="hljs-number">100</span>), <span class="hljs-number">10</span>
-      <span class="hljs-property">@ctx</span>.fillRect <span class="hljs-number">500</span>, <span class="hljs-number">10</span>*(i+<span class="hljs-number">1</span>), (g*<span class="hljs-number">100</span>), <span class="hljs-number">10</span></pre></div></div>
+      <span class="hljs-property">@ctx</span>.fillRect x, <span class="hljs-number">0</span>, <span class="hljs-number">100</span>, <span class="hljs-number">10</span>
+      <span class="hljs-property">@ctx</span>.fillRect x, (<span class="hljs-number">10</span> * (i + <span class="hljs-number">1</span>)), (g * <span class="hljs-number">100</span>), <span class="hljs-number">10</span></pre></div></div>
             
         </li>
         
