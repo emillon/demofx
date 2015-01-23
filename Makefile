@@ -1,5 +1,5 @@
 SRC=start.coffee
-SRC_FX=fire.litcoffee starfield.litcoffee cube.litcoffee wormhole.litcoffee delta.litcoffee
+SRC_FX=fire.litcoffee starfield.litcoffee cube.litcoffee wormhole.litcoffee delta.litcoffee voronoi.litcoffee
 SRC_LIT=$(SRC_FX) app.litcoffee fpsCounter.litcoffee
 
 SNAP=index.html gen.js style.css docs

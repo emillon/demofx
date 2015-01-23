@@ -13,4 +13,6 @@ start = ->
     new Wormhole ctx, xsize, ysize
   app.addEffect 'delta', (ctx) ->
     new Delta ctx, xsize, ysize
+  app.addEffect 'voronoi', (ctx) ->
+    new Voronoi ctx, xsize, ysize
   app.start()
