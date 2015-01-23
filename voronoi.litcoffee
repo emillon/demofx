@@ -20,11 +20,18 @@ the concept of Voronoï cells.
             randomUniform(-1, 1)
           Math.floor(u() + u() + u())
 
+        randomStyle = ->
+          r = randomUniformInt(0, 0xff)
+          g = randomUniformInt(0, 0xff)
+          b = randomUniformInt(0, 0xff)
+          "rgb(#{r},#{g},#{b})"
+
         p =
           x: randomUniformInt(0, @xsize)
           y: randomUniformInt(0, @ysize)
           vx: randomGaussian()
           vy: randomGaussian()
+          cellStyle: randomStyle()
         p
 
       stop: ->
@@ -37,6 +44,7 @@ the concept of Voronoï cells.
 
         @animateParticles()
         @drawParticles()
+        @drawCells()
 
 The first step is to animate particles.
 
@@ -70,3 +78,28 @@ Then we draw them.
       drawParticle: (p) ->
         @ctx.fillStyle = "black"
         @ctx.fillRect p.x, p.y, 3, 3
+
+This code for drawing cells is a bit naive. For each pixel, we compute which
+cell is the closest one.
+
+      drawCells: ->
+        for x in [0..@xsize-1]
+          for y in [0..@ysize-1]
+            @drawCellAt x, y
+
+      drawCellAt: (x, y) ->
+        p = @findClosestFrom x, y
+        @ctx.fillStyle = p.cellStyle
+        @ctx.fillRect x, y, 1, 1
+
+      findClosestFrom: (x, y) ->
+        minPoint = null
+        minDist = @xsize * @ysize
+        for p in @particles
+          dx = p.x - x
+          dy = p.y - y
+          d2 = dx * dx + dy * dy
+          if d2 < minDist
+            minDist = d2
+            minPoint = p
+        minPoint
